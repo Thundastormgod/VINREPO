@@ -105,6 +105,17 @@ def main() -> None:
     # We need to resolve to absolute path since PaddleOCR runs from third_party/PaddleOCR
     workspace_root = Path.cwd().resolve()
 
+    # Compute batch size based on available samples
+    num_train_samples = _count_labels(args.train_labels)
+    # PaddleOCR requires batch_size <= num_samples, so we clamp it
+    batch_size = min(32, max(1, num_train_samples))
+    if batch_size < 32:
+        logging.info(
+            "Adjusted batch size from 32 to %d to match %d training samples",
+            batch_size,
+            num_train_samples,
+        )
+
     train_command = [
         "python",
         "tools/train.py",
@@ -116,15 +127,17 @@ def main() -> None:
         f"Global.epoch_num=3",
         f"Train.dataset.data_dir={workspace_root}",
         f"Train.dataset.label_file_list=['{train_labels_path}']",
-        f"Train.loader.batch_size_per_card=32",
+        f"Train.loader.batch_size_per_card={batch_size}",
     ]
     if args.pretrained_model:
         train_command.append(f"Global.pretrained_model={args.pretrained_model}")
     if args.val_labels:
         val_labels_path = Path(args.val_labels).resolve()
+        num_val_samples = _count_labels(args.val_labels)
+        eval_batch_size = min(32, max(1, num_val_samples))
         train_command.append(f"Eval.dataset.data_dir={workspace_root}")
         train_command.append(f"Eval.dataset.label_file_list=['{val_labels_path}']")
-        train_command.append(f"Eval.loader.batch_size_per_card=32")
+        train_command.append(f"Eval.loader.batch_size_per_card={eval_batch_size}")
 
     run_command(train_command, cwd=str(repo_path))
 

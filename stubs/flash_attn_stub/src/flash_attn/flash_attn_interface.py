@@ -1,4 +1,4 @@
-"""Flash Attention Interface Stub."""
+git push --force"""Flash Attention Interface Stub."""
 
 from flash_attn import (
     flash_attn_func,
