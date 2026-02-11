@@ -1,0 +1,62 @@
+# TrOCR Model Configuration
+# https://huggingface.co/microsoft/trocr-base-printed
+# 
+# HARDWARE REQUIREMENTS:
+#   - Works on all platforms: CUDA, MPS (Apple Silicon), CPU
+#   - ~300M parameters - much smaller than DeepSeek-OCR
+#   - Recommended as alternative for Apple Silicon
+#
+# USE CASE:
+#   - Development/testing on Apple Silicon
+#   - Alternative when large models (DeepSeek) don't fit in memory
+
+model_id: "microsoft/trocr-base-printed"
+model_name: "trocr-base"
+
+# Hardware profile
+hardware:
+  # Works on all platforms
+  optimal: "cuda"
+  supported:
+    - platform: "cuda"
+      attn_implementation: "sdpa"
+      notes: "Best performance"
+    - platform: "mps"  # Apple Silicon
+      attn_implementation: "sdpa"
+      notes: "Good performance on M1/M2/M3 via PyTorch MPS"
+    - platform: "cpu"
+      attn_implementation: "eager"
+      notes: "Works for testing"
+  # Low requirements - fits on most devices
+  min_vram_gb: 2
+  recommended_vram_gb: 4
+  min_ram_gb: 4
+
+# Alternative models
+alternatives:
+  # Even smaller for very limited resources
+  - condition: "ram < 4"
+    model_id: "microsoft/trocr-small-printed"
+    model_name: "trocr-small-fallback"
+    notes: "Even smaller OCR model"
+
+# Dependency requirements
+requirements:
+  python: ">=3.9"
+  transformers: ">=4.30.0"
+  torch: ">=2.0.0"
+
+# Fallback configuration
+fallback:
+  enabled: true
+  type: "baseline"
+  model_name: "trocr-baseline"
+  reason: "Fallback for dependency issues"
+
+# Training defaults
+training:
+  trust_remote_code: false  # TrOCR doesn't need this
+  use_safetensors: true
+  prompt: ""
+  max_new_tokens: 32
+  attn_implementation: "auto"

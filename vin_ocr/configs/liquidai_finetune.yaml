@@ -1,0 +1,9 @@
+trainer: liquidai
+module: vin_ocr.training.finetune_liquidai
+output_dir: vin_ocr_outputs/liquidai
+metrics_file: vin_ocr_outputs/liquidai/metrics.json
+model_revision: ""
+trust_remote_code: true
+export_onnx: true
+onnx_task: image-to-text
+onnx_output: vin_ocr_outputs/liquidai/export.onnx

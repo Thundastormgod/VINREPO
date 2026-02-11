@@ -1,0 +1,24 @@
+parameters:
+  raw_data_dir: vin_ocr_data/raw
+  dataset_dir: vin_ocr_data/processed
+  data_mode: local
+  remote_data_uri: ""
+  fetch_from_dagshub: false
+  dagshub_repo_url: https://dagshub.com/Thundastormgod/jlr-vin-ocr
+  dagshub_repo_data_path: data
+  dagshub_clone_dir: vin_ocr_data/.dagshub_repo
+  dagshub_branch: main
+  dagshub_clean: false
+  train_ratio: 0.7
+  val_ratio: 0.15
+  seed: 42
+  use_symlinks: false
+  train_paddle: true
+  paddle_config: vin_ocr/configs/paddleocr_finetune.yaml
+  paddle_output_dir: vin_ocr_outputs/paddleocr
+  train_deepseek: true
+  deepseek_config: vin_ocr/configs/deepseek_finetune.yaml
+  deepseek_output_dir: vin_ocr_outputs/deepseek
+  train_liquidai: true
+  liquidai_config: vin_ocr/configs/liquidai_finetune.yaml
+  liquidai_output_dir: vin_ocr_outputs/liquidai

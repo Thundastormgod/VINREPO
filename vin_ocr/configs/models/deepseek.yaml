@@ -1,0 +1,82 @@
+# DeepSeek-OCR Model Configuration
+# https://huggingface.co/deepseek-ai/DeepSeek-OCR
+# 
+# HARDWARE REQUIREMENTS:
+#   - NVIDIA GPU with CUDA 11.8+ (required for flash_attention_2)
+#   - Minimum 16GB VRAM recommended for training
+#   - 8GB+ system RAM
+#
+# CLOUD DEPLOYMENT: This model is designed for cloud training on CUDA-enabled instances.
+# For local development on CPU/Apple Silicon, use the fallback or alternative models.
+
+model_id: "deepseek-ai/DeepSeek-OCR"
+model_name: "deepseek-ocr"
+
+# Hardware profile
+hardware:
+  # Optimal platform for this model
+  optimal: "cuda"  # nvidia-gpu
+  # Supported platforms (in order of preference)
+  # NOTE: DeepseekOCRForCausalLM does NOT support SDPA - only flash_attention_2 or eager
+  supported:
+    - platform: "cuda"
+      attn_implementation: "flash_attention_2"
+      notes: "Full performance with Flash Attention 2"
+    - platform: "cuda"
+      attn_implementation: "eager"
+      notes: "Fallback without flash-attn (SDPA not supported by this model)"
+    - platform: "mps"  # Apple Silicon
+      attn_implementation: "eager"
+      notes: "Only eager supported - SDPA not implemented for DeepseekOCRForCausalLM"
+    - platform: "cpu"
+      attn_implementation: "eager"
+      notes: "Very slow - use for testing only"
+  # Minimum requirements
+  min_vram_gb: 8
+  recommended_vram_gb: 16
+  min_ram_gb: 8
+
+# Alternative models for different hardware
+alternatives:
+  # For Apple Silicon / CPU development
+  - condition: "!cuda"
+    model_id: "microsoft/trocr-small-printed"
+    model_name: "trocr-small-fallback"
+    notes: "Lightweight OCR model that works on CPU/MPS"
+  # For limited VRAM (< 16GB)
+  - condition: "cuda && vram < 16"
+    model_id: "microsoft/trocr-base-printed"
+    model_name: "trocr-base-fallback"
+    notes: "Medium-weight OCR model for limited VRAM"
+
+# Dependency requirements (for cloud deployment)
+requirements:
+  python: ">=3.10,<3.13"
+  cuda: ">=11.8"
+  # Core dependencies
+  transformers: "==4.46.3"
+  tokenizers: "==0.20.3"
+  torch: "==2.6.0"
+  # Flash attention (CUDA only - install separately)
+  # pip install flash-attn==2.7.3 --no-build-isolation
+  flash_attn: "==2.7.3"
+  # Additional
+  einops: ">=0.8.0"
+  easydict: ">=1.10"
+  addict: ">=2.4.0"
+
+# Fallback configuration when model fails to load
+fallback:
+  enabled: true
+  type: "baseline"
+  model_name: "deepseek-ocr-baseline"
+  reason: "Model requires CUDA with flash_attention_2 for optimal performance"
+
+# Training defaults
+training:
+  trust_remote_code: true
+  use_safetensors: true
+  prompt: ""
+  max_new_tokens: 32
+  # Attention implementation selection (auto-detected based on hardware)
+  attn_implementation: "auto"  # auto | flash_attention_2 | sdpa | eager

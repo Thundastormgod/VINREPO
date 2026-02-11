@@ -1,0 +1,9 @@
+trainer: paddleocr
+repo_path: third_party/PaddleOCR
+config_path: configs/rec/rec_icdar15_train.yml
+output_dir: vin_ocr_outputs/paddleocr
+metrics_file: vin_ocr_outputs/paddleocr/metrics.json
+repo_revision: ""
+pretrained_model: ""
+export_onnx: true
+onnx_output: vin_ocr_outputs/paddleocr/export.onnx
