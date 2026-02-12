@@ -183,6 +183,21 @@ def load_model_config(config_name: str | None = None, model_id: str | None = Non
     raise ValueError("Either config_name or model_id must be provided")
 
 
+def _ensure_hf_model_downloaded(model_id: str, revision: str | None) -> None:
+    """Ensure HF model artifacts are downloaded to the local cache."""
+    try:
+        from huggingface_hub import snapshot_download
+
+        logger.info("Ensuring pretrained weights are downloaded for %s", model_id)
+        snapshot_download(
+            repo_id=model_id,
+            revision=revision,
+            resume_download=True,
+        )
+    except Exception as exc:
+        logger.warning("Pre-download failed for %s: %s", model_id, exc)
+
+
 def log_hardware_info(hw: HardwareInfo, config: ModelConfig) -> None:
     """Log detected hardware and configuration."""
     logger.info("=" * 60)
@@ -619,6 +634,8 @@ def main(
     attn_implementation = model_config.get_attn_implementation(hw)
     
     logger.info("Using model config: %s (model_id=%s)", model_config.model_name, model_id)
+
+    _ensure_hf_model_downloaded(model_id, args.model_revision)
 
     from datasets import Dataset
     from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments, set_seed

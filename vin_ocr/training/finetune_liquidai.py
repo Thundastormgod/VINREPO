@@ -85,6 +85,7 @@ def main() -> None:
     parser.add_argument("--output-dir", required=True, help="Output directory")
     parser.add_argument("--metrics-file", help="Metrics output file")
     parser.add_argument("--model-id", default="LiquidAI/LFM2.5-VL-1.6B", help="Model ID")
+    parser.add_argument("--model-revision", default=None, help="Model revision")
     parser.add_argument("--max-seq-length", type=int, default=2048, help="Max sequence length")
     parser.add_argument("--load-in-4bit", action="store_true", help="Load in 4-bit quantization")
     parser.add_argument("--num-epochs", type=int, default=3, help="Number of training epochs")
@@ -107,6 +108,7 @@ def main() -> None:
         model_name=args.model_id,
         max_seq_length=args.max_seq_length,
         load_in_4bit=args.load_in_4bit,
+        revision=args.model_revision,
     )
     
     # Apply LoRA
